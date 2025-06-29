@@ -1,14 +1,17 @@
 package course.concurrency.m3_shared.auction;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Notifier {
 
+    //оптимальное количество потоков определено посредством тестов (выше/ниже - деградирует скорость)
+    private final ExecutorService executorService = Executors.newFixedThreadPool(350);
     private volatile boolean isShutdown = false;
 
     public void sendOutdatedMessage(Bid bid) {
-        CompletableFuture.runAsync(() -> {
-            if (!isShutdown) {
+        executorService.submit(() -> {
+            if (!isShutdown && !Thread.currentThread().isInterrupted()) {
                 imitateSending(bid);
             }
         });
@@ -24,5 +27,6 @@ public class Notifier {
 
     public void shutdown() {
         this.isShutdown = true;
+        this.executorService.shutdown();
     }
 }

@@ -20,6 +20,7 @@ public class AuctionOptimistic implements Auction {
                 return false;
             }
         } while (!latestBidRef.compareAndSet(latestBid, bid));
+        notifier.sendOutdatedMessage(latestBid);
         return true;
     }
 
