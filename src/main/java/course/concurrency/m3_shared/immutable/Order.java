@@ -1,5 +1,6 @@
 package course.concurrency.m3_shared.immutable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static course.concurrency.m3_shared.immutable.Order.Status.NEW;
@@ -26,7 +27,7 @@ public class Order {
             throw new IllegalArgumentException("Status must not be null");
         }
         this.id = id;
-        this.items = items;
+        this.items = new ArrayList<>(items);
         this.paymentInfo = paymentInfo;
         this.isPacked = isPacked;
         this.status = status;
