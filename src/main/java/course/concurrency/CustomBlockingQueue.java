@@ -5,21 +5,23 @@ import java.util.Queue;
 
 public class CustomBlockingQueue<T> {
 
-    private final int sizeLimit;
+    private final int capacity;
     private final Queue<T> queue;
     private final Object lock = new Object();
+    private int size = 0;
 
-    public CustomBlockingQueue(int size) {
-        this.queue = new ArrayDeque<>(size);
-        this.sizeLimit = size;
+    public CustomBlockingQueue(int capacity) {
+        this.queue = new ArrayDeque<>(capacity);
+        this.capacity = capacity;
     }
 
     public void enqueue(T value) throws InterruptedException {
         synchronized (lock) {
-            while (queue.size() == sizeLimit) {
+            while (queue.size() == capacity) {
                 lock.wait();
             }
             queue.add(value);
+            size++;
             lock.notifyAll();
         }
     }
@@ -29,11 +31,20 @@ public class CustomBlockingQueue<T> {
             while (queue.isEmpty()) {
                 lock.wait();
             }
-            return queue.poll();
+            T res = queue.poll();
+            size--;
+            lock.notifyAll();
+            return res;
         }
     }
 
     public int size() {
-        return queue.size();
+        synchronized (lock) {
+            return size;
+        }
+    }
+
+    public int capacity() {
+        return capacity;
     }
 }
